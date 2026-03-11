@@ -2,7 +2,7 @@
   "name": "@vue/reactivity",
   "version": "1.0.0",
   "description": "@vue/reactivity",
-  "main": "index.js",
+  "main": "dist/reactivity.cjs.js",
   "module": "dist/reactivity.esm.js",
   "files": [
     "index.js",
@@ -17,5 +17,8 @@
       "cjs",
       "global"
     ]
+  },
+  "dependencies": {
+    "@vue/shared": "workspace:*"
   }
 }
