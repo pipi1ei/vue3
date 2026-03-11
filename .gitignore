@@ -1,4 +1,9 @@
-.DS_store
+.DS_Store
 
 node_modules
 dist
+*.log
+.env
+.vscode
+.idea
+*.tsbuildinfo
