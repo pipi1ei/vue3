@@ -5,7 +5,14 @@
     "moduleResolution": "node", // 指定模块解析策略
     "outDir": "dist", // 指定编译输出的目录
     "resolveJsonModule": true, // 允许导入 JSON 文件
-    "strict": false, // 关闭严格模式
+    "strict": true, // 启用严格模式
+    "noImplicitAny": true, // 不允许隐式 any 类型
+    "strictNullChecks": true, // 严格的 null 检查
+    "strictFunctionTypes": true, // 严格的函数类型检查
+    "strictBindCallApply": true, // 严格的 bind/call/apply 检查
+    "strictPropertyInitialization": true, // 严格的类属性初始化检查
+    "noImplicitThis": true, // 不允许隐式 any 类型
+    "alwaysStrict": true, // 始终以严格模式解析
     "lib": ["ESNext", "DOM"], // 指定要使用的库文件
     "paths": {
       "@vue/*": ["packages/*/src"]

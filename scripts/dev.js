@@ -41,6 +41,12 @@ const outfile = resolve(
   `../packages/${target}/dist/${target}.${format}.js`,
 )
 
+// 添加输入验证
+if (!positionals?.[0]) {
+  console.error('Usage: node scripts/dev.js <package-name> [--format esm|cjs|iife]')
+  process.exit(1)
+}
+
 esbuild
   .context({
     entryPoints: [entry], // 入口文件
@@ -49,8 +55,15 @@ esbuild
     platform: format === 'cjs' ? 'node' : 'browser', // 打包平台
     bundle: true, // 把所有的依赖打包到一个文件中
     sourcemap: true, // 生成 source map
-    globalName: pkg.buildOptions.name, // iife 格式导出的全局变量名
+    globalName: pkg.buildOptions?.name, // iife 格式导出的全局变量名
   })
   .then(ctx => {
     ctx.watch() // 监听文件变化重新打包
+    console.log(`📦 Watching ${target} (${format})...`)
+    console.log(`📝 Entry: ${entry}`)
+    console.log(`📄 Output: ${outfile}`)
+  })
+  .catch(err => {
+    console.error(`❌ Build failed for ${target}:`, err.message)
+    process.exit(1)
   })
