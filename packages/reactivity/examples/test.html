@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button id="btn">click me</button>
+    <script type="module">
+      import { effect, ref } from '../dist/reactivity.esm.js'
+
+      const count = ref(0)
+      const flag = ref(false)
+      const runner = effect(() => {
+        console.log('effect run ==>', count.value, flag.value)
+      })
+
+      document.getElementById('btn').addEventListener('click', () => {
+        flag.value = !flag.value
+        count.value++
+      })
+    </script>
+  </body>
+</html>
