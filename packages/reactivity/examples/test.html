@@ -6,19 +6,33 @@
     <title>Document</title>
   </head>
   <body>
-    <button id="btn">click me</button>
+    <button id="btn">toggle flag</button>
+    <button id="nameBtn">change name</button>
+    <button id="ageBtn">change age</button>
+    <p id="text"></p>
     <script type="module">
       import { effect, ref } from '../dist/reactivity.esm.js'
 
-      const count = ref(0)
-      const flag = ref(false)
+      const flag = ref(true)
+      const name = ref('cl')
+      const age = ref(18)
       const runner = effect(() => {
-        console.log('effect run ==>', count.value, flag.value)
+        console.count('effect')
+        document.getElementById('text').innerText = flag.value
+          ? name.value
+          : age.value
       })
 
       document.getElementById('btn').addEventListener('click', () => {
         flag.value = !flag.value
-        count.value++
+      })
+
+      document.getElementById('nameBtn').addEventListener('click', () => {
+        name.value += '~'
+      })
+
+      document.getElementById('ageBtn').addEventListener('click', () => {
+        age.value++
       })
     </script>
   </body>

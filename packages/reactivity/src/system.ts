@@ -3,9 +3,10 @@
  */
 export interface Sub {
   // 依赖项链表头节点
-  deps: Link | undefined
+  deps?: Link
   // 依赖项链表尾节点
-  depsTail: Link | undefined
+  depsTail?: Link
+  tracking: boolean
   notify(): void
 }
 
@@ -14,9 +15,9 @@ export interface Sub {
  */
 export interface Dep {
   // 订阅者链表头节点
-  subs: Link | undefined
+  subs?: Link
   // 订阅者链表尾节点
-  subsTail: Link | undefined
+  subsTail?: Link
 }
 
 /**
@@ -24,15 +25,15 @@ export interface Dep {
  */
 export interface Link {
   // 订阅者
-  sub: Sub
+  sub: Sub | undefined
   // 下一个订阅者节点
-  nextSub: Link | undefined
+  nextSub?: Link
   // 上一个订阅者节点
-  prevSub: Link | undefined
+  prevSub?: Link
   // 依赖项
-  dep: Dep
+  dep: Dep | undefined
   // 下一个依赖项节点
-  nextDep: Link | undefined
+  nextDep?: Link
 }
 
 /**
@@ -57,7 +58,7 @@ export function link(dep: Dep, sub: Sub) {
     dep,
     nextSub: undefined,
     prevSub: undefined,
-    nextDep: undefined,
+    nextDep,
   }
 
   // 将链表和响应式数据建立联系
@@ -82,9 +83,63 @@ export function propagate(subs: Link) {
   let link: Link | undefined = subs
   const queuedEffect = []
   while (link) {
-    queuedEffect.push(link.sub)
+    const { sub } = link
+    if (!sub!.tracking) {
+      queuedEffect.push(link.sub)
+    }
     link = link.nextSub
   }
 
-  queuedEffect.forEach(effect => effect.notify())
+  queuedEffect.forEach(sub => sub!.notify())
+}
+
+export function startTrack(sub: Sub) {
+  sub.depsTail = undefined
+}
+
+export function endTrack(sub: Sub) {
+  // 如果 depsTail 还有 nextDep，说明后面的依赖需要清理
+  if (sub.depsTail?.nextDep) {
+    if (sub.depsTail.nextDep) {
+      clearTracking(sub.depsTail.nextDep)
+      sub.depsTail.nextDep = undefined
+    }
+  }
+  // 如果 depsTail 为空但 deps 存在，需要从头节点开始清理
+  else if (!sub.depsTail && sub.deps) {
+    clearTracking(sub.deps)
+    sub.deps = undefined
+  }
+}
+
+function clearTracking(link: Link | undefined) {
+  while (link) {
+    const { nextSub, prevSub, dep, nextDep } = link
+
+    /**
+     * 如果 prevSub 有，就把 prevSub 的下一个节点指向当前节点的下一个
+     * 如果没有，就是头节点，把 dep 头节点指向当前节点的下一个
+     */
+    if (prevSub) {
+      prevSub.nextSub = nextSub
+      link.nextSub = undefined
+    } else {
+      dep!.subs = nextSub
+    }
+
+    /**
+     * 如果有 nextDep，就把 nextDep 的上一个节点指向当前节点的上一个
+     * 如果没有，就是尾节点，把 dep 尾节点指向当前节点的上一个
+     */
+    if (nextSub) {
+      nextSub.prevSub = prevSub
+      link.prevSub = undefined
+    } else {
+      dep!.subsTail = prevSub
+    }
+
+    link.sub = link.dep = undefined
+    link.nextDep = undefined
+    link = nextDep
+  }
 }

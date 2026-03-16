@@ -1,4 +1,4 @@
-import { Link, type Sub } from './system'
+import { type Sub, Link, startTrack, endTrack } from './system'
 
 export type EffectScheduler = (...args: any[]) => any
 
@@ -18,17 +18,22 @@ export class ReactiveEffect<T = any> implements Sub {
   deps: Link | undefined = undefined
   depsTail: Link | undefined = undefined
 
+  tracking = false
+
   constructor(public fn: () => T) {}
 
   run() {
     const prevSub = activeSub
     activeSub = this
     // 执行 fn 之前先把 depsTail 置空，尝试在收集依赖时复用依赖项
-    this.depsTail = undefined
+    startTrack(this)
     try {
+      this.tracking = true
       return this.fn()
     } finally {
       activeSub = prevSub
+      this.tracking = false
+      endTrack(this)
     }
   }
 
