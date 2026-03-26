@@ -13,7 +13,7 @@ export interface Sub {
 /**
  * 依赖项（响应式数据）
  */
-export interface Dep {
+export interface Dependency {
   // 订阅者链表头节点
   subs?: Link
   // 订阅者链表尾节点
@@ -31,7 +31,7 @@ export interface Link {
   // 上一个订阅者节点
   prevSub?: Link
   // 依赖项
-  dep: Dep | undefined
+  dep: Dependency | undefined
   // 下一个依赖项节点
   nextDep?: Link
 }
@@ -39,7 +39,7 @@ export interface Link {
 /**
  * 在响应式数据和 effect 之间建立联系
  */
-export function link(dep: Dep, sub: Sub) {
+export function link(dep: Dependency, sub: Sub) {
   // 复用依赖项，防止重复收集依赖
   const currentDep = sub.depsTail
   /**

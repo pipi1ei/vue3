@@ -1,11 +1,13 @@
+import { hasChanged, isObject } from '@vue/shared'
 import { activeSub } from './effect'
-import { type Dep, type Link, link, propagate } from './system'
+import { type Dependency, type Link, link, propagate } from './system'
+import { reactive } from './reactive'
 
 enum ReactiveFlags {
   IS_REF = '__v_isRef',
 }
 
-class RefImpl<T> implements Dep {
+class RefImpl<T> implements Dependency {
   _value: T;
 
   [ReactiveFlags.IS_REF] = true
@@ -16,7 +18,7 @@ class RefImpl<T> implements Dep {
   subsTail: Link | undefined
 
   constructor(value: T) {
-    this._value = value
+    this._value = isObject(value) ? reactive(value) : value
   }
 
   get value() {
@@ -25,8 +27,10 @@ class RefImpl<T> implements Dep {
   }
 
   set value(newValue) {
-    this._value = newValue
-    triggerRef(this)
+    if (hasChanged(this._value, newValue)) {
+      this._value = isObject(newValue) ? reactive(newValue) : newValue
+      triggerRef(this)
+    }
   }
 }
 

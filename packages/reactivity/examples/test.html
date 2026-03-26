@@ -11,29 +11,21 @@
     <button id="ageBtn">change age</button>
     <p id="text"></p>
     <script type="module">
-      import { effect, ref } from '../dist/reactivity.esm.js'
+      import { effect, reactive } from '../dist/reactivity.esm.js'
 
-      const flag = ref(true)
-      const name = ref('cl')
-      const age = ref(18)
-      const runner = effect(() => {
-        console.count('effect')
-        document.getElementById('text').innerText = flag.value
-          ? name.value
-          : age.value
+      const state = reactive({
+        a: {
+          b: 0,
+        },
       })
 
-      document.getElementById('btn').addEventListener('click', () => {
-        flag.value = !flag.value
+      effect(() => {
+        console.log(state.a.b)
       })
 
-      document.getElementById('nameBtn').addEventListener('click', () => {
-        name.value += '~'
-      })
-
-      document.getElementById('ageBtn').addEventListener('click', () => {
-        age.value++
-      })
+      setTimeout(() => {
+        state.a.b++
+      }, 1000)
     </script>
   </body>
 </html>
